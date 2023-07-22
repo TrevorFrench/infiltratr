@@ -14,7 +14,6 @@
 #   Test Package:              'Ctrl + Shift + T'
 
 d3_barchart <- function(data) {
-  print(system.file("d3", "barchart", "barchart.js", package = "infiltratr"))
   r2d3::r2d3(
     data = data,
     script = system.file("d3", "barchart", "barchart.js", package = "infiltratr"),
@@ -22,3 +21,26 @@ d3_barchart <- function(data) {
     height = NULL
   )
 }
+
+chord_diagram <- function(data) {
+  r2d3::r2d3(
+    data = data,
+    script = system.file("d3", "chord_diagram", "chord_diagram.js", package = "infiltratr"),
+    width = NULL,  # Adjust width and height if needed
+    height = NULL
+  )
+}
+
+forcegraph <- function(data) {
+  r2d3::r2d3(
+    data = data,
+    script = system.file("d3", "forcegraph", "forcegraph.js", package = "infiltratr"),
+    width = NULL,  # Adjust width and height if needed
+    height = NULL
+  )
+}
+
+#r2d3::r2d3(data = matrix(round(runif(16, 1, 10000)), ncol = 4, nrow = 4), script = "./inst/d3/chord_diagram/chord_diagram.js")
+
+#r2d3::r2d3(data = jsonlite::read_json("./inst/d3/forcegraph/miserables.json"), d3_version = 4, script = "./inst/d3/forcegraph/forcegraph.js")
+
