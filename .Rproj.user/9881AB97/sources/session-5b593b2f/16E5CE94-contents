@@ -1,0 +1,100 @@
+library(network)
+library(tidyverse)
+
+source <- c('Entity 1', 'Entity 2', 'Entity 3', 'Victims', 'Attack Wallet', 'Attack Wallet', 'Attack Wallet', 'Attack Wallet'
+            , 'Attack Wallet', 'Attack Wallet', 'Attack Wallet', 'Attack Wallet', 'Attack Wallet', 'Attack Wallet', 'Attack Wallet', 'Attack Wallet'
+            , 'Attack Wallet')
+destination <- c('Attack Wallet', 'Attack Wallet', 'Attack Wallet', 'Attack Wallet'
+                 , 'Entity 4', 'Entity 5', 'Entity 6', 'Entity 3'
+                 , 'Entity 7', 'Entity 8', 'Entity 9', 'Entity 10', 'Entity 11', 'Entity 12', 'Entity 13', 'Entity 14'
+                 , 'Entity 15')
+size <- c('0.00089784',
+          '23.05183275',
+          '29.099470494',
+          '1114.471462213',
+          '116',
+          '9',
+          '0.00089784',
+          '102.35',
+          '358',
+          '10',
+          '1.086281813',
+          '63.5',
+          '107.78',
+          '253',
+          '17.4',
+          '1.455487685',
+          '105'
+)
+
+sme <- data.frame(source = source, destination = destination)
+
+sources <- sme %>%
+  distinct(source) %>%
+  rename(label = source)
+
+destinations <- sme %>%
+  distinct(destination) %>%
+  rename(label = destination)
+
+nodes <- full_join(sources, destinations, by = "label")
+nodes
+
+nodes <- rowid_to_column(nodes, "id")
+nodes['value'] <- size
+nodes
+
+per_route <- sme %>%  
+  group_by(source, destination) %>%
+  summarise(weight = n()) %>% 
+  ungroup()
+
+edges <- per_route %>% 
+  left_join(nodes, by = c("source" = "label")) %>% 
+  rename(from = id)
+
+edges <- edges %>% 
+  left_join(nodes, by = c("destination" = "label")) %>% 
+  rename(to = id)
+
+edges <- select(edges, from, to, weight)
+edges
+
+routes_network <- network(edges,
+                          vertex.attr = nodes,
+                          matrix.type = "edgelist",
+                          ignore.eval = FALSE)
+
+plot(routes_network, vertex.cex = 3)
+
+library(visNetwork)
+
+groups <- c('INFLOW', 'INFLOW', 'INFLOW', 'INFLOW', 'OUTFLOW', 'OUTFLOW', 'OUTFLOW', 'OUTFLOW', 'OUTFLOW', 'OUTFLOW'
+            , 'OUTFLOW', 'OUTFLOW', 'OUTFLOW', 'OUTFLOW', 'OUTFLOW', 'OUTFLOW', 'OUTFLOW')
+nodes$group <- groups
+
+colors <- c('pink', '#00A4AC')
+
+legendNodes <- data.frame(
+  label = c("OUTFLOW","INFLOW"),
+  color.background = colors,
+  #color.border = c("black", "white"),
+  color.border = c('black','black'),
+  #shape = c("dot", "dot")
+  shape = c('dot','dot')
+  #color.label = 'white'
+)
+
+visNetwork(nodes
+           , edges
+           # , width = "100%"
+           # , height = "100%"
+           , main = list(text = "WALLET DRAIN ATTACK [#000001]", style = "font-family:'Courier New',monospace;font-size:25px;text-align:center;font-weight:bold")
+           , submain = list(text = "Associated Entities"
+                            , style = "font-family:'Courier New',monospace;font-size:15px;text-align:center;"
+           )
+) %>% 
+  visGroups(groupname = "OUTFLOW", color = "pink") %>% 
+  visGroups(groupname = "INFLOW", color = "#00A4AC")  %>%
+  visLegend(useGroups = FALSE,
+            addNodes = legendNodes)

@@ -42,5 +42,5 @@ forcegraph <- function(data) {
 
 #r2d3::r2d3(data = matrix(round(runif(16, 1, 10000)), ncol = 4, nrow = 4), script = "./inst/d3/chord_diagram/chord_diagram.js")
 
-#r2d3::r2d3(data = jsonlite::read_json("./inst/d3/forcegraph/miserables.json"), d3_version = 4, script = "./inst/d3/forcegraph/forcegraph.js")
+r2d3::r2d3(data = jsonlite::read_json("./inst/d3/forcegraph/000001.json"), d3_version = 4, script = "./inst/d3/forcegraph/forcegraph.js")
 
